@@ -33,3 +33,35 @@ class JuegoAhorcado:
 
         if self.intentos_restantes > 0:
             print(f"¡Gracias por jugar! ¡Hasta la próxima!: La palabra secreta era: {self.palabra_secreta}")
+
+    def intentar_letra(self, letra):
+        letra = letra.lower()
+        if letra in self.letras_adivinadas:
+            return "Ya has adivinado esa letra. Intenta con otra."
+        self.letras_adivinadas.add(letra)
+        if letra in self.palabra_secreta:
+            if all(l in self.letras_adivinadas for l in self.palabra_secreta):
+                return f"¡Felicidades! Has adivinado la palabra: {self.palabra_secreta}"
+            return "¡Correcto!"
+        else:
+            self.intentos_restantes -= 1
+            if self.intentos_restantes <= 0:
+                return f"¡Has perdido! La palabra secreta era: {self.palabra_secreta}"
+            return f"Letra incorrecta. Intentos restantes: {self.intentos_restantes}"
+        
+    def verificar_victoria(self):
+        return all(letra in self.letras_adivinadas for letra in self.palabra_secreta)
+    
+    def reiniciar_juego(self):
+        self.letras_adivinadas.clear()
+        self.intentos_restantes = 6
+        self.palabra_secreta = self.categoria.cargar_palabra_secreta()
+        
+    def mostrar_palabra(self):
+        resultado = ""
+        for letra in self.palabra_secreta:
+            if letra in self.letras_adivinadas:
+                resultado += letra + " "
+            else:
+                resultado += "_ "
+        return resultado

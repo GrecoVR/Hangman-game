@@ -19,43 +19,27 @@ palabra_label.pack()
 entrada = tk.Entry(ventana)
 entrada.pack()
 
-# 🔥 función para mostrar palabra
-def mostrar_palabra():
-    resultado = ""
-    for letra in juego.palabra_secreta:
-        if letra in juego.letras_adivinadas:
-            resultado += letra + " "
-        else:
-            resultado += "_ "
-    return resultado
-
 # 🔥 función del botón
 def jugar():
     letra = entrada.get()
     entrada.delete(0, tk.END)
 
-    if letra not in juego.letras_adivinadas:
-        juego.letras_adivinadas.add(letra)
+    resultado = juego.intentar_letra(letra)
 
-    if letra not in juego.palabra_secreta:
-        juego.intentos_restantes -= 1
-        estado.config(text=f"Intentos restantes: {juego.intentos_restantes}")
+    palabra_label.config(text=juego.mostrar_palabra())
 
-    palabra_label.config(text=mostrar_palabra())
-
-    if intentos_restantes := juego.intentos_restantes <= 0:
-        fin_juego(f"¡Has perdido! La palabra era: {juego.palabra_secreta}")
-    if comprobar_victoria():
-        fin_juego("¡Felicidades! Has ganado.")
-
-def comprobar_victoria():
-    if all(letra in juego.letras_adivinadas for letra in juego.palabra_secreta):
-        estado.config(text="¡Felicidades! Has ganado.")
-        return True
-    elif juego.intentos_restantes <= 0:
-        estado.config(text=f"¡Has perdido! La palabra era: {juego.palabra_secreta}")
-        return True
-    return False
+    if resultado == "¡Correcto!":
+        estado.config(text="¡Correcto!")
+    elif resultado == "Ya has adivinado esa letra. Intenta con otra.":
+        estado.config(text="Ya has adivinado esa letra. Intenta con otra.")
+    elif resultado == f"¡Felicidades! Has adivinado la palabra: {juego.palabra_secreta}":
+        estado.config(text=resultado)
+        fin_juego(resultado)
+    elif resultado == f"¡Has perdido! La palabra secreta era: {juego.palabra_secreta}":
+        estado.config(text=resultado)
+        fin_juego(resultado)
+    elif resultado == f"Letra incorrecta. Intentos restantes: {juego.intentos_restantes}":
+        estado.config(text=resultado)
 
 def fin_juego(mensaje):
     estado.config(text=mensaje)
@@ -64,13 +48,7 @@ def fin_juego(mensaje):
 boton_jugar = tk.Button(ventana, text="Jugar", command=jugar)
 boton_jugar.pack()
 
-def reiniciar():
-    juego.letras_adivinadas.clear()
-    juego.intentos_restantes = 6
-    juego.palabra_secreta = juego.categoria.cargar_palabra_secreta()
-    boton_jugar.config(state=tk.NORMAL)
-
-boton_reiniciar = tk.Button(ventana, text="Reiniciar", command=reiniciar)
+boton_reiniciar = tk.Button(ventana, text="Reiniciar", command=juego.reiniciar_juego)
 boton_reiniciar.pack()
 
 ventana.mainloop()
